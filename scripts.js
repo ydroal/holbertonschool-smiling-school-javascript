@@ -211,6 +211,18 @@ $(document).ready(function () {
             sort: sortValue  // ソートのオーダー
         },
         success: function (data) {
+          console.log(data);
+          // レスポンスからtopicsを取得し、ドロップダウンメニューを動的に生成
+          const topics = data.topics;
+          let topicHTML = '';
+          topics.forEach((topic) => {
+              topicHTML += `<a data-value="${topic}" class="dropdown-item" href="#">${topic}</a>`;
+          });
+          $('#topic-menu').html(topicHTML);
+
+          const topicsValue = data.topic;
+          $('.selectedTopicText').text(topicsValue.charAt(0).toUpperCase() + topicsValue.slice(1));
+
           // レスポンスからcourses配列を取得
           const videos = data.courses;
           let cardsHTML = '';
@@ -258,7 +270,7 @@ $(document).ready(function () {
 
           // ビデオ本数を更新
           $('.results .video-count').text(`${videos.length} videos`);
-          
+
           // 結果セクションにカードを追加
           $('.results .container .row').empty().append(cardsHTML); 
           $('.loader-container').hide();
@@ -288,13 +300,15 @@ $(document).ready(function () {
       loadVideoCards();
     });
 
-    $('#topic-menu .dropdown-item').on('click', function() {
+    // 動的に生成・追加した新しい要素には直接設定したイベントリスナーは適用されない
+    $(document).on('click', '#topic-menu .dropdown-item', function() {
       topicValue = $(this).data("value"); // セレクト値の取得→更新
-      let selectedTopicText = $(this).text(); // 選択したアイテムのテキストを取得
-      $('.selectedTopicText').text(selectedTopicText); // <span> タグ内のテキストを変更
+      // let selectedTopicText = $(this).text(); // 選択したアイテムのテキストを取得
+      // $('.selectedTopicText').text(selectedTopicText); // <span> タグ内のテキストを変更
       $('.loader-container').show();
       loadVideoCards();
     });
+    
     
     $('#sort .dropdown-item').on('click', function() {
       sortValue = $(this).data("value"); // セレクト値の取得→更新
