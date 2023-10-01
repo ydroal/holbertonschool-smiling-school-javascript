@@ -120,7 +120,84 @@ $(document).ready(function () {
         }
     });
   };
+
+  function loadLatestVideos() {
+    $('.loader-container').show();
+
+    // APIからlatest-videosをフェッチ
+    $.ajax({
+        url: 'https://smileschool-api.hbtn.info/latest-videos',
+        method: 'GET',
+        success: function (data) {
+          console.log(data);
+            let carouselInner = $('#carouselExampleControls3 .carousel-inner');
+            carouselInner.html(''); // static contentとloaderをクリア
+
+            for (let i = 0; i < data.length; i += 4) {
+              let carouselItem = $('<div class="carousel-item"></div>');
+              let rowDiv = $('<div class="row align-items-center mx-auto"></div>');
+
+              if (i === 0) {
+                  carouselItem.addClass('active');
+              }
+
+              for (let j = 0; j < 4 && i + j < data.length; j++) {
+                let latest = data[i + j];
+                // starsを作成する
+                let starsHTML = '';
+                for (let k = 0; k < 5; k++) {
+                    if (k < latest.star) {
+                        starsHTML += '<i class="fas fa-star"></i>'; // starをつける
+                    } else {
+                        starsHTML += '<i class="far fa-star"></i>'; // 0 star
+                    }
+                }
+
+                let videoCardHTML = `
+                  <div class="col-3"> 
+                    <div class="card">
+                        <img src="${latest.thumb_url}" class="card-img-top" alt="Video thumbnail">
+                        <div class="card-img-overlay text-center">
+                            <img src="images/play.png" alt="Play" width="64px" class="align-self-center play-overlay" />
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title font-weight-bold">${latest.title}</h5>
+                            <p class="card-text text-muted">${latest["sub-title"]}</p>
+                            <div class="creator d-flex align-items-center">
+                                <img src="${latest.author_pic_url}" alt="Creator of Video" width="30px" class="rounded-circle" />
+                                <h6 class="pl-3 m-0 main-color">${latest.author}</h6>
+                            </div>
+                            <div class="info pt-3 d-flex justify-content-between">
+                                <div class="rating">${starsHTML}</div>
+                                <span class="main-color">${latest.duration}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                rowDiv.append(videoCardHTML); 
+            }
+            carouselItem.append(rowDiv);
+            carouselInner.append(carouselItem);
+
+          }
+
+            // カルーセルを初期化
+            $('#carouselExampleControls3').carousel({
+                interval: false,
+                wrap: true
+            });
+
+            $('.loader-container').hide();
+        },
+        error: function() {
+            console.error('Failed to fetch popular tutorials');
+            $('.loader-container').hide();
+        }
+    });
+  };
   
   loadQuotes();
   loadPopularTutorials();
+  loadLatestVideos();
 });
