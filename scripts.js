@@ -100,7 +100,7 @@ $(document).ready(function () {
                 </div>
                 `;
                 rowDiv.append(tutorialHTML); 
-            }
+              }
             carouselItem.append(rowDiv);
             carouselInner.append(carouselItem);
 
@@ -255,8 +255,12 @@ $(document).ready(function () {
               cardsHTML = '<div class="row">' + cardsHTML + '</div>';
             }
           });
+
+          // ビデオ本数を更新
+          $('.results .video-count').text(`${videos.length} videos`);
+          
           // 結果セクションにカードを追加
-          $('.results .container').empty().append(cardsHTML);
+          $('.results .container .row').empty().append(cardsHTML); 
           $('.loader-container').hide();
         },
         error: function() {
