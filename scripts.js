@@ -196,8 +196,122 @@ $(document).ready(function () {
         }
     });
   };
-  
-  loadQuotes();
-  loadPopularTutorials();
-  loadLatestVideos();
+
+  let searchValue = '';
+  let topicValue = '';
+  let sortValue = '';
+    
+  function loadVideoCards() {
+    $.ajax({
+        url: 'https://smileschool-api.hbtn.info/courses',
+        method: 'GET',
+        data: {
+            q: searchValue, // 検索キーワード
+            topic: topicValue, // トピックのフィルター
+            sort: sortValue  // ソートのオーダー
+        },
+        success: function (data) {
+          // レスポンスからcourses配列を取得
+          const videos = data.courses;
+          let cardsHTML = '';
+          videos.forEach((video, index) => {
+            let starsHTML = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < video.star) {
+                    starsHTML += '<i class="fas fa-star"></i>';
+                } else {
+                    starsHTML += '<i class="far fa-star"></i>';
+                }
+            }
+            // 各ビデオの情報を使用してカードのHTMLを生成
+            const card = `
+              <div class="col-12 col-sm-4 col-lg-3 d-flex justify-content-center">
+                <div class="card">
+                  <img src="${video.thumb_url}" class="card-img-top" alt="Video thumbnail"/>
+                  <div class="card-img-overlay text-center">
+                    <img src="images/play.png" alt="Play" width="64px" class="align-self-center play-overlay"/>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title font-weight-bold">${video.title}</h5>
+                    <p class="card-text text-muted">${video['sub-title']}</p>
+                    <div class="creator d-flex align-items-center">
+                      <img src="${video.author_pic_url}" alt="Creator of Video" width="30px" class="rounded-circle"/>
+                      <h6 class="pl-3 m-0 main-color">${video.author}</h6>
+                    </div>
+                    <div class="info pt-3 d-flex justify-content-between">
+                      <div class="rating">
+                      ${starsHTML}
+                      </div>
+                      <span class="main-color">${video.duration}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          `;
+            cardsHTML += card;
+
+            // 4つのカードごとに新しいrowを作成
+            if ((index + 1) % 4 === 0) {
+              cardsHTML = '<div class="row">' + cardsHTML + '</div>';
+            }
+          });
+          // 結果セクションにカードを追加
+          $('.results .container').empty().append(cardsHTML);
+          $('.loader-container').hide();
+        },
+        error: function() {
+            console.error('Failed to fetch courses');
+            $('.loader-container').hide();
+        }
+    });
+  };
+
+  if (window.location.pathname.includes('courses.html')) {
+    // ページ読み込み時にセレクトボックスとインプットの値をクリア
+    $("select").selectpicker('val', '');
+    $("select").selectpicker('refresh');
+    $("input, textarea").val("");
+
+    $('.loader-container').show();
+    loadVideoCards();
+  }
+      
+  function initCoursePage() {
+
+    $('.search-text-area').on('input', function() {
+      searchValue = $(this).val(); // インプット値の取得→更新
+      $('.loader-container').show();
+      loadVideoCards();
+    });
+
+    $('#topic-menu .dropdown-item').on('click', function() {
+      topicValue = $(this).data("value"); // セレクト値の取得→更新
+      let selectedTopicText = $(this).text(); // 選択したアイテムのテキストを取得
+      $('.selectedTopicText').text(selectedTopicText); // <span> タグ内のテキストを変更
+      $('.loader-container').show();
+      loadVideoCards();
+    });
+    
+    $('#sort .dropdown-item').on('click', function() {
+      sortValue = $(this).data("value"); // セレクト値の取得→更新
+      let selectedSortText = $(this).text(); // 選択したアイテムのテキストを取得
+      $('.selectedSortText').text(selectedSortText); // <span> タグ内のテキストを変更
+      $('.loader-container').show();
+      loadVideoCards();
+    });
+  }
+
+  if (window.location.pathname.includes('pricing.html')) {
+    loadQuotes();
+  }
+
+  if (window.location.pathname.includes('homepage.html')) {
+    loadQuotes();
+    loadPopularTutorials();
+    loadLatestVideos();
+  }
+
+  if (window.location.pathname.includes('courses.html')) {
+    initCoursePage();
+  }
 });

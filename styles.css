@@ -883,6 +883,12 @@
   background-color: white;
 }
 
+/* RESULTS SECTION  */
+.results .container {
+  position: relative;
+}
+
+
 @media screen and (max-width: 575px) {
   .search .box1 .input-group {
     margin-bottom: 0;
