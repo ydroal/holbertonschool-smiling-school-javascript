@@ -202,6 +202,7 @@ $(document).ready(function () {
   let sortValue = '';
     
   function loadVideoCards() {
+    console.log('called');
     $.ajax({
         url: 'https://smileschool-api.hbtn.info/courses',
         method: 'GET',
@@ -216,12 +217,29 @@ $(document).ready(function () {
           const topics = data.topics;
           let topicHTML = '';
           topics.forEach((topic) => {
-              topicHTML += `<a data-value="${topic}" class="dropdown-item" href="#">${topic}</a>`;
+            topic = topic.charAt(0).toUpperCase() + topic.slice(1);
+            topicHTML += `<a data-value="${topic}" class="dropdown-item" href="#">${topic}</a>`;
           });
           $('#topic-menu').html(topicHTML);
 
           const topicsValue = data.topic;
           $('.selectedTopicText').text(topicsValue.charAt(0).toUpperCase() + topicsValue.slice(1));
+
+          // レスポンスからsortsを取得し、ドロップダウンメニューを動的に生成
+          const sorts = data.sorts;
+          let sortHTML = '';
+          sorts.forEach((sort) => {
+            let displaySort = sort.replace('_', ' '); // JavaScriptの文字列はimmutableなので再代入
+            displaySort = displaySort.charAt(0).toUpperCase() + displaySort.slice(1);
+            sortHTML += `<a data-value="${sort}" class="dropdown-item" href="#">${displaySort}</a>`;
+          });
+          $('#sort').html(sortHTML);
+
+          let sortsValue = data.sort;
+          sortsValue = sortsValue.replace('_', ' ');
+          sortsValue = sortsValue.charAt(0).toUpperCase() + sortsValue.slice(1);
+          $('.selectedSortText').text(sortsValue);
+
 
           // レスポンスからcourses配列を取得
           const videos = data.courses;
@@ -309,11 +327,11 @@ $(document).ready(function () {
       loadVideoCards();
     });
     
-    
-    $('#sort .dropdown-item').on('click', function() {
+    $(document).on('click', '#sort .dropdown-item', function() {
       sortValue = $(this).data("value"); // セレクト値の取得→更新
-      let selectedSortText = $(this).text(); // 選択したアイテムのテキストを取得
-      $('.selectedSortText').text(selectedSortText); // <span> タグ内のテキストを変更
+      console.log(sortValue);
+      // let selectedSortText = $(this).text(); // 選択したアイテムのテキストを取得
+      // $('.selectedSortText').text(selectedSortText); // <span> タグ内のテキストを変更
       $('.loader-container').show();
       loadVideoCards();
     });
